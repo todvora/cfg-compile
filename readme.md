@@ -19,7 +19,7 @@ BOOST_ENABLED = true
 
 Maybe because it's shared between your java app and some legacy app. Maybe because
 your technical support / ops like this format and can adapt it easily, before building a new
-release. Or maybe because you don't want to change something everyone i familiar with. But!
+release. Or maybe because you don't want to change something everyone i familiar with.
 
 **Your task is to read the config file in your application and use those constants on proper places.**
 
