@@ -1,4 +1,6 @@
-## Compile your configuration files
+## How to compile your configuration in Java: from config file to java source code
+
+[![Build Status](https://travis-ci.org/todvora/cfg-compile.svg?branch=master)](https://travis-ci.org/todvora/cfg-compile)
 
 Lets suppose you have a configuration file in the following form:
 
