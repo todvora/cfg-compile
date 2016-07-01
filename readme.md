@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/todvora/cfg-compile.svg?branch=master)](https://travis-ci.org/todvora/cfg-compile)
 
-Lets suppose you have a configuration file in the following form:
+Lets suppose you have a [configuration file](https://github.com/todvora/cfg-compile/blob/master/myapp/src/main/resources/settings.cfg) in the following form:
 
 ```ini
 # System wide configuration
@@ -118,7 +118,7 @@ And a Section consists of one or more Assignments:
         );
     }
 ```
-This is the actual code, used to parse our configuration file - not a pseudo code. Pretty cool, right? Readable, easy to write and actually understand, unlike typical regex for such a complicated structure.
+This is the [actual code](https://github.com/todvora/cfg-compile/blob/master/codegen/src/main/java/cz/tomasdvorak/codegen/parser/ConfigurationGrammar.java), used to parse our configuration file - not a pseudo code. Pretty cool, right? Readable, easy to write and actually understand, unlike typical regex for such a complicated structure.
 
 Parboiled provides a [value stack](https://github.com/sirthias/parboiled/wiki/The-Value-Stack), convenient for storing our node values. Consider following ```Integer``` value rule:
 
@@ -142,7 +142,7 @@ We have a config tree. Converting to the java classes should be more or less:
 - Attach every *Assignment* to this class as a *field*
 - Persist class to a file
 
-Since java source codes are regular text files, we could do it on our own. But String joining of all the pieces together could quickly become same nightmare as those regexes before. Luckily we don't have to do it. Roaster is a java parser / formatter of source codes. It provides fluent API to generate java classes:
+Since java source codes are usual text files, we could do it on our own. But String joining of all the pieces together could quickly become same nightmare as those regexes before. Luckily we don't have to do it. [Roaster](https://github.com/forge/roaster) is a parser / formatter of java source codes. It provides fluent API to generate java classes:
 
 ```java
 final JavaClassSource javaClass = Roaster.create(JavaClassSource.class);
@@ -189,15 +189,15 @@ Root project
 
 With the right Maven setup, following steps take places during ```mvn package``` of the root project:
 
-- ```compile``` phase of *Codegen* source codes - prepaires Parser, Generator, Main
+- ```compile``` phase of *Codegen* source codes - prepaires [Parser](https://github.com/todvora/cfg-compile/blob/master/codegen/src/main/java/cz/tomasdvorak/codegen/parser/ConfigurationParser.java), [Grammar](https://github.com/todvora/cfg-compile/blob/master/codegen/src/main/java/cz/tomasdvorak/codegen/parser/ConfigurationGrammar.java), [Generator](https://github.com/todvora/cfg-compile/blob/master/codegen/src/main/java/cz/tomasdvorak/codegen/generator/ClassesGenerator.java) and [Main](https://github.com/todvora/cfg-compile/blob/master/codegen/src/main/java/cz/tomasdvorak/codegen/Codegen.java)
 - ```generate-sources``` phase of *MyApp*, where Codegen.Main is executed and all configuration classes are generated from provided config file, then everything persisted
 - ```compile``` phase of *MyApp* is executed, with already available Configuration sources
 - ```test``` phase of *MyApp* is executed, when compilation succeeds
 - ...
 
-The root project doesn't have any sources and serves only as an aggregator project. Two subprojects are needed to separate compile phases of Parser/Generator and actual application sources. [Exec Maven Plugin](http://www.mojohaus.org/exec-maven-plugin/) executes the Generator.Main during ```generate-sources``` phase of *MyApp* project, triggering the whole parse-generate-persist chain.
+The root project doesn't have any sources and serves only as an [aggregator project](https://maven.apache.org/pom.html#Aggregation). Two subprojects are needed to separate compile phases of Parser/Generator and actual application sources. [Exec Maven Plugin](http://www.mojohaus.org/exec-maven-plugin/) executes the Generator.Main during ```generate-sources``` phase of *MyApp* project, triggering the whole parse-generate-persist chain.
 
-This project structure also ensures the [Separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). Your application only provides a ```*.cfg``` file and receives ready-to-use java classes of them. All the parsing and generating is separated in its own project. You can have many apps using the similar configuration files, every app depending on the same *Codegen* project. So next time you don't have to [repeat yourself](https://en.wikipedia.org/wiki/Don't_repeat_yourself).
+This project structure also ensures the [Separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). Your application only provides a ```*.cfg``` file and receives ready-to-use java classes from them. All the parsing and generating is separated in its own project. You can have many apps using the similar configuration files, every app depending on the same *Codegen* project. So next time you don't have to [repeat yourself](https://en.wikipedia.org/wiki/Don't_repeat_yourself).
 
 ### Results
 We are ready, all the infrastructure is prepaired. It's time to write our app, that depends on generated *SystemConstants* and *UserConstants*. It could be something like:
@@ -220,4 +220,6 @@ public class UserUtils {
 }
 ```
 
-If we remove any of ```BOOST_ENABLED```, ```BOOST``` or ```MAX_MEMORY``` assignments in the ```*.cfg``` file, the compilation fails. If we change any of them to different type - like String, the compilation fails. If we rename them, the compilation fails. Everything must be pretty much aligned to pass the compile phase. The majority of errors can and will be detected before our tests are started. There exist no simple workaround / hack like disabling or ignoring failing test results. Even without a single test, we are still able to catch most of the typical errors and mistakes. Our app code is clean, reliable, typed, available for code completion. What more to ask for?!
+If we remove any of ```BOOST_ENABLED```, ```BOOST``` or ```MAX_MEMORY``` assignments in the ```*.cfg``` file, the compilation fails. If we change any of them to different type - like String, the compilation fails. If we rename them, the compilation fails. Everything must be pretty much aligned to pass the compile phase. **The majority of errors can and will be detected before our tests are started**. There exists no simple workaround / hack like disabling or ignoring failing test results. Even without a single test we are still able to catch most of the typical errors and mistakes. Our app code is clean, reliable, typed, available for code completion. What more to ask for?!
+
+Don't forget to check the [travis-ci build](https://travis-ci.org/todvora/cfg-compile) of this repository. It proves, that everything plays nicely together. Have you find a better solution or a bug in my code? Let me know on [twitter](https://twitter.com/tdvorak) or send a [pull request](https://github.com/todvora/cfg-compile/pulls). Thanks! 
